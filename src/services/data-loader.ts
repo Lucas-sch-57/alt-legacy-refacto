@@ -3,6 +3,7 @@ import { readCsv } from '../utils/csv-utils';
 import { DATA_PATHS } from '../constants/constants';
 import { Product } from '../types/product';
 import { Order } from '../types/order';
+import { ShippingZone } from '../types/shipping-zone';
 export const loadCustomers = (): Customer[] =>
   readCsv(DATA_PATHS.CUSTOMERS, (parts) => ({
     id: parts[0],
@@ -33,3 +34,12 @@ export const loadOrders = (): Order[] =>
     promo_code: parts[6] || '',
     time: (parts[7] || '12:00').trim(),
   }));
+
+export const loadShippingZones = (): Record<string, ShippingZone> => {
+  const zones = readCsv(DATA_PATHS.SHIPPING_ZONES, (parts) => ({
+    zone: parts[0],
+    base: parseFloat(parts[1]),
+    per_kg: parseFloat(parts[2] || '0.5'),
+  }));
+  return Object.fromEntries(zones.map((z) => [z.zone, z]));
+};
