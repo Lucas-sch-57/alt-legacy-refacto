@@ -77,7 +77,7 @@ export const run = (): string => {
     const customerTotal = totalsByCustomer[customerId];
 
     // Calcul des remises
-    const volumeDiscount = calculateVolumeDiscount(customerTotal);
+    const volumeDiscount = calculateVolumeDiscount(customerTotal, customer);
     const points = loyaltyPoints[customerId] ?? 0;
     const loyaltyDiscount = calculateLoyaltyDiscount(points);
 
