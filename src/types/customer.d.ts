@@ -1,7 +1,7 @@
 export interface Customer {
     id: string;
     name: string;
-    level: string;
+    level: 'BASIC' | 'PREMIUM';
     shipping_zone: string;
     currency: string;
 }
