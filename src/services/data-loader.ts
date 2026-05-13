@@ -5,6 +5,12 @@ import { Product } from '../types/product';
 import { Order } from '../types/order';
 import { ShippingZone } from '../types/shipping-zone';
 import { Promotion } from '../types/promotion';
+
+/**
+ * Loads customers from CSV file.
+ * Defaults: level = 'BASIC', shipping_zone = 'ZONE1', currency = 'EUR'
+ * @returns Map of customer_id → Customer
+ */
 export const loadCustomers = (): Record<string, Customer> => {
   const customers = readCsv(DATA_PATHS.CUSTOMERS, (parts) => ({
     id: parts[0],
@@ -16,7 +22,11 @@ export const loadCustomers = (): Record<string, Customer> => {
 
   return Object.fromEntries(customers.map((c) => [c.id, c]));
 };
-
+/**
+ * Loads products from CSV file.
+ * Defaults: weight = 1.0kg
+ * @returns Map of product_id → Product
+ */
 export const loadProducts = (): Record<string, Product> => {
   const products = readCsv(DATA_PATHS.PRODUCTS, (parts) => ({
     id: parts[0],
@@ -29,7 +39,11 @@ export const loadProducts = (): Record<string, Product> => {
 
   return Object.fromEntries(products.map((p) => [p.id, p]));
 };
-
+/**
+ * Loads orders from CSV file.
+ * Defaults: promo_code = '', time = '12:00'
+ * @returns List of orders
+ */
 export const loadOrders = (): Order[] =>
   readCsv(DATA_PATHS.ORDERS, (parts) => ({
     id: parts[0],
@@ -41,7 +55,11 @@ export const loadOrders = (): Order[] =>
     promo_code: parts[6] || '',
     time: (parts[7] || '12:00').trim(),
   }));
-
+/**
+ * Loads shipping zones from CSV file.
+ * Defaults: per_kg = 0.5€
+ * @returns Map of zone_id → ShippingZone
+ */
 export const loadShippingZones = (): Record<string, ShippingZone> => {
   const zones = readCsv(DATA_PATHS.SHIPPING_ZONES, (parts) => ({
     zone: parts[0],
@@ -50,7 +68,11 @@ export const loadShippingZones = (): Record<string, ShippingZone> => {
   }));
   return Object.fromEntries(zones.map((z) => [z.zone, z]));
 };
-
+/**
+ * Loads promotions from CSV file.
+ * Returns an empty map if the file does not exist (promotions are optional).
+ * @returns Map of promo_code → Promotion
+ */
 export const loadPromotions = (): Record<string, Promotion> => {
   try {
     const promos = readCsv(DATA_PATHS.PROMOTIONS, (parts) => ({
