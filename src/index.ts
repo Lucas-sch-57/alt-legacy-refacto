@@ -34,7 +34,6 @@ export const run = (): string => {
   // Calcul des points de fidélité
   const loyaltyPoints = calculateLoyaltyPoints(orders);
 
-
   const totalsByCustomer: Record<string, CustomerTotal> = {};
 
   for (const order of orders) {
@@ -123,7 +122,7 @@ export const run = (): string => {
   // Résumé global
   outputLines.push(formatSummary({ grandTotal, totalTaxCollected }));
 
-  const result = outputLines.join('');
+  const result = outputLines.join('\n');
 
   // Affichage + export JSON
   console.log(result);

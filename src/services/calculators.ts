@@ -217,5 +217,5 @@ export const calculateTotal = (
   currency: string,
 ): number => {
   const currencyRate = CURRENCY_RATES[currency] ?? CURRENCY_RATES['EUR'];
-  return Math.round((taxable + tax + ship + handling) * currencyRate * 100);
+  return Math.round((taxable + tax + ship + handling) * currencyRate * 100) / 100;
 };
