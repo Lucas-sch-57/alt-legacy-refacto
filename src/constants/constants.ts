@@ -8,6 +8,13 @@ export const MORNING_BONUS_RATE=0.03
 export const MORNING_BONUS_HOUR=10
 export const WEEKEND_BONUS_MULTIPLIER=1.05
 
+export const DISCOUNT_TIERS = [
+  { threshold: 1000, rate: 0.20, requiresPremium: true },
+  { threshold: 500,  rate: 0.15 },
+  { threshold: 100,  rate: 0.10 },
+  { threshold: 50,   rate: 0.05 },
+] as const;
+
 //FIDELITE
 export const LOYALTY_POINTS_RATIO=0.01
 export const LOYALTY_TIER_1_TRESHOLD=100;
