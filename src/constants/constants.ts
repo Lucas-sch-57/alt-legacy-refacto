@@ -37,20 +37,25 @@ export const LOYALTY_TIER_2_RATE = 0.15;
 
 //LIVRAISON
 export const FREE_SHIPPING_TRESHOLD = 50;
+export const FREE_SHIPPING_HEAVY_THRESHOLD = 20;
+export const FREE_SHIPPING_HEAVY_RATE = 0.25;
+
+export const HEAVY_WEIGHT_THRESHOLD = 10;
+export const HEAVY_WEIGHT_RATE = 10;
+
+export const MEDIUM_WEIGHT_THRESHOLD = 5;
+export const MEDIUM_WEIGHT_RATE = 0.3;
+
+export const REMOTE_ZONE_MULTIPLIER = 1.2;
+export const REMOTE_ZONES = ['ZONE3', 'ZONE4'];
+
 export const DEFAULT_SHIPPING_FEE = 5.0;
+export const DEFAULT_PER_KG_RATE = 0.5;
+
 export const HANDLING_FEE_AMOUNT = 2.5;
 export const HANDLING_FEE_LARGE_ORDER = 5.0;
 export const HANDLING_TRESHOLD_1 = 10;
 export const HANDLING_TRESHOLD_2 = 20;
-
-export const HEAVY_WEIGHT_THRESHOLD = 10;
-export const MEDIUM_WEIGHT_THRESHOLD = 5;
-export const MEDIUM_WEIGHT_RATE = 0.3;
-export const REMOTE_ZONE_MULTIPLIER = 1.2;
-export const REMOTE_ZONES = ['ZONE3', 'ZONE4'];
-export const FREE_SHIPPING_HEAVY_THRESHOLD = 20;
-export const FREE_SHIPPING_HEAVY_RATE = 0.25;
-export const DEFAULT_PER_KG_RATE = 0.5;
 
 //Devises
 export const CURRENCY_RATES: Record<string, number> = {

@@ -1,5 +1,16 @@
 import {
+  CURRENCY_RATES,
+  DEFAULT_PER_KG_RATE,
+  DEFAULT_SHIPPING_FEE,
   DISCOUNT_TIERS,
+  FREE_SHIPPING_HEAVY_RATE,
+  FREE_SHIPPING_HEAVY_THRESHOLD,
+  FREE_SHIPPING_TRESHOLD,
+  HANDLING_FEE_AMOUNT,
+  HANDLING_FEE_LARGE_ORDER,
+  HANDLING_TRESHOLD_1,
+  HANDLING_TRESHOLD_2,
+  HEAVY_WEIGHT_THRESHOLD,
   LOYALTY_POINTS_RATIO,
   LOYALTY_TIER_1_MAX,
   LOYALTY_TIER_1_RATE,
@@ -7,12 +18,18 @@ import {
   LOYALTY_TIER_2_MAX,
   LOYALTY_TIER_2_RATE,
   LOYALTY_TIER_2_TRESHOLD,
+  MEDIUM_WEIGHT_RATE,
+  MEDIUM_WEIGHT_THRESHOLD,
+  REMOTE_ZONE_MULTIPLIER,
+  REMOTE_ZONES,
   TAX_RATE,
   WEEKEND_BONUS_MULTIPLIER,
 } from '../constants/constants';
 import { Customer, CustomerTotal } from '../types/customer';
 import { Order } from '../types/order';
 import { Product } from '../types/product';
+import { ShippingZone } from '../types/shipping-zone';
+import { loadShippingZones } from './data-loader';
 
 // ---- Loyalty ---- //
 export const calculateLoyaltyPoints = (orders: Order[]): Record<string, number> => {
@@ -65,8 +82,8 @@ export const calculateVolumeDiscount = (customerTotal: CustomerTotal): number =>
   }
   return disc;
 };
-// ---- Tax ---- //
 
+// ---- Tax ---- //
 const areAllProductsTaxable = (orders: Order[], products: Record<string, Product>): boolean => {
   return orders.every((item) => products[item.product_id]?.taxable !== false);
 };
@@ -96,4 +113,56 @@ export const calculateTax = (
     return calculateGlobalTax(taxableAmount);
   }
   return calculateMixedTax(orders, products);
+};
+
+// ---- Shipping ---- //
+export const calculateShipping = (
+  customerTotal: CustomerTotal,
+  customer: Customer,
+  shippingZones: Record<string, ShippingZone>,
+): number => {
+  let ship = 0.0;
+  const weight = customerTotal.weight;
+  const subTotal = customerTotal.subtotal;
+  const zone = customer.shipping_zone;
+
+  if (subTotal < FREE_SHIPPING_TRESHOLD) {
+    const shipZone = shippingZones[zone] || {
+      base: DEFAULT_SHIPPING_FEE,
+      per_kg: DEFAULT_PER_KG_RATE,
+    };
+
+    const baseShip = shipZone.base;
+
+    if (weight > HEAVY_WEIGHT_THRESHOLD) {
+      ship = baseShip + (weight - HEAVY_WEIGHT_THRESHOLD) * shipZone.per_kg;
+    } else if (weight > MEDIUM_WEIGHT_THRESHOLD) {
+      ship = baseShip + (weight - MEDIUM_WEIGHT_THRESHOLD) * MEDIUM_WEIGHT_RATE;
+    } else {
+      ship = shipZone.base;
+    }
+
+    //Majoration pour livraison en zone éloignée
+    if (REMOTE_ZONES.includes(zone)) {
+      ship = ship * REMOTE_ZONE_MULTIPLIER;
+    }
+  } else {
+    if (weight > FREE_SHIPPING_HEAVY_THRESHOLD) {
+      ship = (weight - FREE_SHIPPING_HEAVY_THRESHOLD) * FREE_SHIPPING_HEAVY_RATE;
+    }
+  }
+  return ship;
+};
+
+export const calculateHandlingFee = (customerTotal: CustomerTotal): Number => {
+  let handling = 0.0;
+  const itemCount = customerTotal.items.length;
+  if (itemCount > HANDLING_TRESHOLD_1) {
+    handling = HANDLING_FEE_AMOUNT;
+  }
+  if (itemCount > HANDLING_TRESHOLD_2) {
+    handling = HANDLING_FEE_LARGE_ORDER;
+  }
+
+  return handling;
 };
