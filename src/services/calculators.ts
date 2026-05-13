@@ -140,6 +140,11 @@ const calculateMixedTax = (orders: Order[], products: Record<string, Product>): 
   return Math.round(tax * 100) / 100;
 };
 
+export const convertTax = (tax: number, currency: string): number => {
+  const currencyRate = CURRENCY_RATES[currency] ?? CURRENCY_RATES['EUR'];
+  return tax * currencyRate;
+};
+
 export const calculateTax = (
   taxableAmount: number,
   orders: Order[],
@@ -201,4 +206,16 @@ export const calculateHandlingFee = (customerTotal: CustomerTotal): Number => {
   }
 
   return handling;
+};
+
+// --- Total --- //
+export const calculateTotal = (
+  taxable: number,
+  tax: number,
+  ship: number,
+  handling: number,
+  currency: number,
+): number => {
+  const currencyRate = CURRENCY_RATES[currency] ?? CURRENCY_RATES['EUR'];
+  return Math.round((taxable + tax + ship + handling) * currencyRate * 100);
 };
