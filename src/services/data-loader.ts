@@ -4,6 +4,7 @@ import { DATA_PATHS } from '../constants/constants';
 import { Product } from '../types/product';
 import { Order } from '../types/order';
 import { ShippingZone } from '../types/shipping-zone';
+import { Promotion } from '../types/promotion';
 export const loadCustomers = (): Customer[] =>
   readCsv(DATA_PATHS.CUSTOMERS, (parts) => ({
     id: parts[0],
@@ -42,4 +43,19 @@ export const loadShippingZones = (): Record<string, ShippingZone> => {
     per_kg: parseFloat(parts[2] || '0.5'),
   }));
   return Object.fromEntries(zones.map((z) => [z.zone, z]));
+};
+
+export const loadPromotions = (): Record<string, Promotion> => {
+  try {
+    const promos = readCsv(DATA_PATHS.PROMOTIONS, (parts) => ({
+      code: parts[0],
+      type: parts[1] as 'PERCENTAGE' | 'FIXED',
+      value: parseFloat(parts[2]),
+      active: parts[3]?.trim() !== 'false',
+    }));
+    return Object.fromEntries(promos.map((p) => [p.code, p]));
+  } catch {
+    // Fichier promotions optionnel
+    return {};
+  }
 };
