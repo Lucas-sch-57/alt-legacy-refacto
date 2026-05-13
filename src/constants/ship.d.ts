@@ -1,2 +1,0 @@
-export const FREE_SHIPPING_TRESHOLD = 50;
-export const DEFAULT_SHIPPING_FEE=5.0;

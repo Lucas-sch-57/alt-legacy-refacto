@@ -1,3 +1,0 @@
-export const MORNING_BONUS_RATE=0.03
-export const MORNING_BONUS_HOUR=10;
-export const WEEK_END_BONUS_RATE=1.05
