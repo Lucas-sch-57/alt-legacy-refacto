@@ -1,6 +1,6 @@
 export interface Promotion {
-    code: string;
-    type: 'PERCENTAGE' | 'FIXED';
-    value: number;
-    active: boolean
+  code: string;
+  type: 'PERCENTAGE' | 'FIXED';
+  value: number;
+  active: boolean;
 }

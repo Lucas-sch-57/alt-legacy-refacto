@@ -20,6 +20,8 @@ import {
   LOYALTY_TIER_2_TRESHOLD,
   MEDIUM_WEIGHT_RATE,
   MEDIUM_WEIGHT_THRESHOLD,
+  MORNING_BONUS_HOUR,
+  MORNING_BONUS_RATE,
   REMOTE_ZONE_MULTIPLIER,
   REMOTE_ZONES,
   TAX_RATE,
@@ -28,6 +30,7 @@ import {
 import { Customer, CustomerTotal } from '../types/customer';
 import { Order } from '../types/order';
 import { Product } from '../types/product';
+import { Promotion } from '../types/promotion';
 import { ShippingZone } from '../types/shipping-zone';
 import { loadShippingZones } from './data-loader';
 
@@ -81,6 +84,39 @@ export const calculateVolumeDiscount = (customerTotal: CustomerTotal): number =>
     disc = disc * WEEKEND_BONUS_MULTIPLIER;
   }
   return disc;
+};
+export const calculateLineTotal = (
+  order: Order,
+  basePrice: number,
+  promotions: Record<string, Promotion>,
+): { lineTotal: number; morningBonus: number } => {
+  const promoCode = order.promo_code;
+  let discountRate = 0;
+  let fixedDiscount = 0;
+  if (promoCode && promotions[promoCode]) {
+    const promo = promotions[promoCode];
+    if (promo.active) {
+      if (promo.type === 'PERCENTAGE') {
+        discountRate = promo.value / 100;
+      } else if (promo.type === 'FIXED') {
+        fixedDiscount = promo.value;
+      }
+    }
+  }
+  let lineTotal = order.qty * basePrice * (1 - discountRate) - fixedDiscount * order.qty;
+
+  //Bonus Matin
+  const hour = Number(order.time.split(':')[0]);
+  let morningBonus = 0;
+  if (hour < MORNING_BONUS_HOUR) {
+    morningBonus = lineTotal * MORNING_BONUS_RATE;
+  }
+  lineTotal = lineTotal - morningBonus;
+
+  return {
+    lineTotal,
+    morningBonus,
+  };
 };
 
 // ---- Tax ---- //
