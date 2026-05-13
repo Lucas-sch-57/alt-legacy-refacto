@@ -1,6 +1,12 @@
 import {
   DISCOUNT_TIERS,
   LOYALTY_POINTS_RATIO,
+  LOYALTY_TIER_1_MAX,
+  LOYALTY_TIER_1_RATE,
+  LOYALTY_TIER_1_TRESHOLD,
+  LOYALTY_TIER_2_MAX,
+  LOYALTY_TIER_2_RATE,
+  LOYALTY_TIER_2_TRESHOLD,
   WEEKEND_BONUS_MULTIPLIER,
 } from '../constants/constants';
 import { Customer, CustomerTotal } from '../types/customer';
@@ -43,4 +49,16 @@ export const calculateVolumeDiscount = (customerTotal: CustomerTotal): number =>
     disc = disc * WEEKEND_BONUS_MULTIPLIER;
   }
   return disc;
+};
+
+export const calculateLoyaltyDiscount = (points: number) => {
+  let loyaltyDiscount = 0.0;
+  if (points > LOYALTY_TIER_1_TRESHOLD) {
+    loyaltyDiscount = Math.min(points * LOYALTY_TIER_1_RATE, LOYALTY_TIER_1_MAX);
+  }
+  if (points > LOYALTY_TIER_2_TRESHOLD) {
+    loyaltyDiscount = Math.min(points * LOYALTY_TIER_2_RATE, LOYALTY_TIER_2_MAX);
+  }
+
+  return loyaltyDiscount;
 };
