@@ -1,6 +1,13 @@
 import { FormatterData, ReportSummary } from '../types/formatter';
 import { CURRENCY_RATES } from '../constants/constants';
-
+/**
+ * Formats a single customer report block as a string.
+ * Includes subtotal, discounts, tax, shipping, handling, total and loyalty points.
+ * Tax is converted to the customer's currency before display.
+ * Morning bonus line is only shown if applicable.
+ * @param data - All computed data for the customer
+ * @returns Formatted report block ending with an empty line
+ */
 export const formatCustomerReport = (data: FormatterData): string => {
   const lines: string[] = [];
   const { customer, customerTotal } = data;
@@ -34,14 +41,24 @@ export const formatCustomerReport = (data: FormatterData): string => {
 
   return lines.join('\n');
 };
-
+/**
+ * Formats the report summary (grand total and total tax collected).
+ * Amounts are always displayed in EUR regardless of customer currencies.
+ * @param summary - Grand total and total tax collected
+ * @returns Formatted summary string
+ */
 export const formatSummary = (summary: ReportSummary): string => {
   const lines: string[] = [];
   lines.push(`Grand Total: ${summary.grandTotal.toFixed(2)} EUR`);
   lines.push(`Total Tax Collected: ${summary.totalTaxCollected.toFixed(2)} EUR`);
   return lines.join('\n');
 };
-
+/**
+ * Formats the full report data as a JSON string for file export.
+ * Each entry contains customer_id, name, total, currency and loyalty_points.
+ * @param data - List of all customer report data
+ * @returns Pretty-printed JSON string
+ */
 export const formatJsonOutput = (data: FormatterData[]): string => {
   const jsonData = data.map((d) => ({
     customer_id: d.customer.id,
