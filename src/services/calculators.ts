@@ -35,6 +35,12 @@ import { ShippingZone } from '../types/shipping-zone';
 import { loadShippingZones } from './data-loader';
 
 // ---- Loyalty ---- //
+/**
+ * Calculates loyalty points accumulated per customer.
+ * Each point equals 1% of the total order amount.
+ * @param orders - List of all orders
+ * @returns Map of customer_id → loyalty points
+ */
 export const calculateLoyaltyPoints = (orders: Order[]): Record<string, number> => {
   const loyaltyPoints: Record<string, number> = {};
 
@@ -48,7 +54,13 @@ export const calculateLoyaltyPoints = (orders: Order[]): Record<string, number> 
 
   return loyaltyPoints;
 };
-
+/**
+ * Calculates the loyalty discount based on accumulated points.
+ * Tier 1: > 100 pts → 10% of points, capped at 50€
+ * Tier 2: > 500 pts → 15% of points, capped at 100€ (overwrites tier 1)
+ * @param points - Customer loyalty points
+ * @returns Loyalty discount amount in euros
+ */
 export const calculateLoyaltyDiscount = (points: number) => {
   let loyaltyDiscount = 0.0;
   if (points > LOYALTY_TIER_1_TRESHOLD) {
@@ -61,6 +73,19 @@ export const calculateLoyaltyDiscount = (points: number) => {
   return loyaltyDiscount;
 };
 // ---- Discounts ---- //
+
+/**
+ * Calculates the volume discount based on subtotal tiers.
+ * NOTE: Tiers overwrite each other (intentional legacy behavior preserved) :
+ * - > 50€   → 5%
+ * - > 100€  → 10%
+ * - > 500€  → 15%
+ * - > 1000€ → 20% (PREMIUM customers only)
+ * A 5% bonus is applied on the discount if the first order was placed on a weekend.
+ * @param customerTotal - Aggregated customer order data
+ * @param customer - Customer data including level and shipping zone
+ * @returns Volume discount amount in euros
+ */
 export const calculateVolumeDiscount = (
   customerTotal: CustomerTotal,
   customer: Customer,
@@ -88,6 +113,15 @@ export const calculateVolumeDiscount = (
   }
   return disc;
 };
+/**
+ * Calculates the total amount for a single order line.
+ * Applies promo code (percentage or fixed) and morning bonus (-3% before 10am).
+ * NOTE: Fixed discount is multiplied by quantity (intentional legacy behavior preserved).
+ * @param order - The order line
+ * @param basePrice - Base unit price (from product catalog or order fallback)
+ * @param promotions - Map of available promotions
+ * @returns Object containing the line total and morning bonus amount
+ */
 export const calculateLineTotal = (
   order: Order,
   basePrice: number,
@@ -123,14 +157,32 @@ export const calculateLineTotal = (
 };
 
 // ---- Tax ---- //
+/**
+ * Checks if all products in an order are taxable.
+ * A product is considered taxable unless explicitly set to false.
+ * @param orders - Customer order lines
+ * @param products - Product catalog
+ * @returns True if all products are taxable, false otherwise
+ */
 const areAllProductsTaxable = (orders: Order[], products: Record<string, Product>): boolean => {
   return orders.every((item) => products[item.product_id]?.taxable !== false);
 };
-
+/**
+ * Calculates tax on the full taxable amount (when all products are taxable).
+ * @param taxableAmount - Subtotal after discounts
+ * @returns Tax amount rounded to 2 decimal places
+ */
 const calculateGlobalTax = (taxableAmount: number) => {
   return Math.round(taxableAmount * TAX_RATE * 100) / 100;
 };
 
+/**
+ * Calculates tax line by line for orders containing non-taxable products.
+ * Only taxable products contribute to the tax amount.
+ * @param orders - Customer order lines
+ * @param products - Product catalog
+ * @returns Tax amount rounded to 2 decimal places
+ */
 const calculateMixedTax = (orders: Order[], products: Record<string, Product>): number => {
   let tax = 0;
   for (const item of orders) {
@@ -142,12 +194,25 @@ const calculateMixedTax = (orders: Order[], products: Record<string, Product>): 
   }
   return Math.round(tax * 100) / 100;
 };
-
+/**
+ * Converts a tax amount to the customer's currency.
+ * @param tax - Tax amount in euros
+ * @param currency - Target currency code (EUR, USD, GBP)
+ * @returns Converted tax amount
+ */
 export const convertTax = (tax: number, currency: string): number => {
   const currencyRate = CURRENCY_RATES[currency] ?? CURRENCY_RATES['EUR'];
   return tax * currencyRate;
 };
-
+/**
+ * Calculates the tax amount for a customer's orders.
+ * If all products are taxable, applies a global 20% tax on the taxable amount.
+ * Otherwise, calculates tax line by line for taxable products only.
+ * @param taxableAmount - Subtotal after discounts
+ * @param orders - Customer order lines
+ * @param products - Product catalog
+ * @returns Tax amount rounded to 2 decimal places
+ */
 export const calculateTax = (
   taxableAmount: number,
   orders: Order[],
@@ -160,6 +225,16 @@ export const calculateTax = (
 };
 
 // ---- Shipping ---- //
+
+/**
+ * Calculates shipping costs based on subtotal, weight and shipping zone.
+ * Free shipping above FREE_SHIPPING_THRESHOLD, except handling fees for heavy orders.
+ * Remote zones (ZONE3, ZONE4) incur a 20% surcharge.
+ * @param customerTotal - Aggregated customer order data including weight
+ * @param customer - Customer data including shipping zone
+ * @param shippingZones - Map of available shipping zones with rates
+ * @returns Shipping cost in euros
+ */
 export const calculateShipping = (
   customerTotal: CustomerTotal,
   customer: Customer,
@@ -197,7 +272,13 @@ export const calculateShipping = (
   }
   return ship;
 };
-
+/**
+ * Calculates handling fees based on the number of items ordered.
+ * - > 10 items → 2.50€
+ * - > 20 items → 5.00€
+ * @param customerTotal - Aggregated customer order data
+ * @returns Handling fee amount in euros
+ */
 export const calculateHandlingFee = (customerTotal: CustomerTotal): number => {
   let handling = 0.0;
   const itemCount = customerTotal.items.length;
@@ -212,6 +293,17 @@ export const calculateHandlingFee = (customerTotal: CustomerTotal): number => {
 };
 
 // --- Total --- //
+
+/**
+ * Calculates the final order total including tax, shipping and handling.
+ * Applies currency conversion rate for non-EUR customers.
+ * @param taxable - Subtotal after discounts
+ * @param tax - Tax amount
+ * @param ship - Shipping cost
+ * @param handling - Handling fee
+ * @param currency - Customer currency code (EUR, USD, GBP)
+ * @returns Final total rounded to 2 decimal places
+ */
 export const calculateTotal = (
   taxable: number,
   tax: number,
