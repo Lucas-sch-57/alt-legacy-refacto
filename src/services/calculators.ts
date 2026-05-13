@@ -79,7 +79,7 @@ const calculateMixedTax = (orders: Order[], products: Record<string, Product>): 
   let tax = 0;
   for (const item of orders) {
     const product = products[item.product_id];
-    if (product && product.taxable) {
+    if (product && product.taxable !== false) {
       const itemTotal = item.qty * (product.price || item.unit_price);
       tax += itemTotal * TAX_RATE;
     }
