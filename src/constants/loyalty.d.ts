@@ -1,0 +1,1 @@
+export const LOYALTY_RATIO = 0.01;
