@@ -5,8 +5,8 @@ import { Product } from '../types/product';
 import { Order } from '../types/order';
 import { ShippingZone } from '../types/shipping-zone';
 import { Promotion } from '../types/promotion';
-export const loadCustomers = (): Customer[] =>
-  readCsv(DATA_PATHS.CUSTOMERS, (parts) => ({
+export const loadCustomers = (): Record<string, Customer> => {
+  const customers = readCsv(DATA_PATHS.CUSTOMERS, (parts) => ({
     id: parts[0],
     name: parts[1],
     level: (parts[2] || 'BASIC') as 'BASIC' | 'PREMIUM',
@@ -14,8 +14,11 @@ export const loadCustomers = (): Customer[] =>
     currency: parts[4] || 'EUR',
   }));
 
-export const loadProducts = (): Product[] =>
-  readCsv(DATA_PATHS.PRODUCTS, (parts) => ({
+  return Object.fromEntries(customers.map((c) => [c.id, c]));
+};
+
+export const loadProducts = (): Record<string, Product> => {
+  const products = readCsv(DATA_PATHS.PRODUCTS, (parts) => ({
     id: parts[0],
     name: parts[1],
     category: parts[2],
@@ -23,6 +26,9 @@ export const loadProducts = (): Product[] =>
     weight: parseFloat(parts[4] || '1.0'),
     taxable: parts[5] === 'true',
   }));
+
+  return Object.fromEntries(products.map((p) => [p.id, p]));
+};
 
 export const loadOrders = (): Order[] =>
   readCsv(DATA_PATHS.ORDERS, (parts) => ({

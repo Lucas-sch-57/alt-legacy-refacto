@@ -1,6 +1,6 @@
 import path from 'path';
 //PATH
-const DATA_DIR = path.join(__dirname, '../legacy/data');
+const DATA_DIR = path.join(__dirname, '../../legacy/data');
 
 export const DATA_PATHS = {
   CUSTOMERS: path.join(DATA_DIR, 'customers.csv'),

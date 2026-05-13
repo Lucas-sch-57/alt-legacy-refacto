@@ -195,7 +195,7 @@ export const calculateShipping = (
   return ship;
 };
 
-export const calculateHandlingFee = (customerTotal: CustomerTotal): Number => {
+export const calculateHandlingFee = (customerTotal: CustomerTotal): number => {
   let handling = 0.0;
   const itemCount = customerTotal.items.length;
   if (itemCount > HANDLING_TRESHOLD_1) {
@@ -214,7 +214,7 @@ export const calculateTotal = (
   tax: number,
   ship: number,
   handling: number,
-  currency: number,
+  currency: string,
 ): number => {
   const currencyRate = CURRENCY_RATES[currency] ?? CURRENCY_RATES['EUR'];
   return Math.round((taxable + tax + ship + handling) * currencyRate * 100);
