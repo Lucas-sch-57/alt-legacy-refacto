@@ -6,7 +6,8 @@
   "scripts": {
     "legacy": "ts-node legacy/orderReportLegacy.ts",
     "test": "vitest",
-    "test:watch": "vitest --watch"
+    "test:watch": "vitest --watch",
+    "generate:output": "ts-node legacy/orderReportLegacy.ts > legacy/expected/report.txt"
   },
   "devDependencies": {
     "@types/jest": "^29.5.0",
