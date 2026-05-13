@@ -61,7 +61,10 @@ export const calculateLoyaltyDiscount = (points: number) => {
   return loyaltyDiscount;
 };
 // ---- Discounts ---- //
-export const calculateVolumeDiscount = (customerTotal: CustomerTotal): number => {
+export const calculateVolumeDiscount = (
+  customerTotal: CustomerTotal,
+  customer: Customer,
+): number => {
   let disc = 0.0;
   const subTotal = customerTotal.subtotal;
 
@@ -74,7 +77,7 @@ export const calculateVolumeDiscount = (customerTotal: CustomerTotal): number =>
   if (subTotal > 500) {
     disc = subTotal * DISCOUNT_TIERS[1].rate;
   }
-  if (subTotal > 1000) {
+  if (subTotal > 1000 && customer.level === 'PREMIUM') {
     disc = subTotal * DISCOUNT_TIERS[0].rate;
   }
 
