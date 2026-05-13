@@ -1,1 +1,1 @@
-export const LOYALTY_RATIO = 0.01;
+export const LOYALTY_POINTS_RATIO = 0.01;
