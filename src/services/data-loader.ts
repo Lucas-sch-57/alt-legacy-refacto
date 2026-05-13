@@ -2,6 +2,7 @@ import { Customer } from '../types/customer';
 import { readCsv } from '../utils/csv-utils';
 import { DATA_PATHS } from '../constants/constants';
 import { Product } from '../types/product';
+import { Order } from '../types/order';
 export const loadCustomers = (): Customer[] =>
   readCsv(DATA_PATHS.CUSTOMERS, (parts) => ({
     id: parts[0],
@@ -19,4 +20,16 @@ export const loadProducts = (): Product[] =>
     price: parseFloat(parts[3]),
     weight: parseFloat(parts[4] || '1.0'),
     taxable: parts[5] === 'true',
+  }));
+
+export const loadOrders = (): Order[] =>
+  readCsv(DATA_PATHS.ORDERS, (parts) => ({
+    id: parts[0],
+    customer_id: parts[1],
+    product_id: parts[2],
+    qty: parseInt(parts[3]),
+    unit_price: parseFloat(parts[4]),
+    date: parts[5],
+    promo_code: parts[6] || '',
+    time: (parts[7] || '12:00').trim(),
   }));
